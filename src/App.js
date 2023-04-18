@@ -1,19 +1,15 @@
 
 import React, {Component} from 'react';
-// import Clarifai from 'clarifai';
+import ParticlesBg from 'particles-bg';
 import Navigation  from './components/Navigation/Navigation';
 import Logo  from './components/Logo/Logo';
 import Rank  from './components/Rank/Rank';
 import ImageLinkForm  from './components/ImageLinkForm/ImageLinkForm';
-import ParticlesBg from 'particles-bg';
+import FaceRecognition  from './components/FaceRecognition/FaceRecognition';
 import './App.css';
 
 
-// const Clarifai = require('clarifai');
 
-// const app = new Clarifai.App({
-//  apiKey: '4d621810ffbf41178f96ba6328ff442d'
-// });
 
 const returnClarifaiRequestOptions = (imageUrl) => {
     // Your PAT (Personal Access Token) can be found in the portal under Authentification
@@ -23,9 +19,12 @@ const returnClarifaiRequestOptions = (imageUrl) => {
     const USER_ID = 'rado';       
     const APP_ID = 'smart-brain';
     // Change these to whatever model and image URL you want to use
-    const MODEL_ID = 'face-detection';
-    const MODEL_VERSION_ID = '6dc7e46bc9124c5c8824be4822abe105';
+    const MODEL_ID = 'face-detection'; 
     const IMAGE_URL = imageUrl;
+
+    ///////////////////////////////////////////////////////////////////////////////////
+    // YOU DO NOT NEED TO CHANGE ANYTHING BELOW THIS LINE TO RUN THIS EXAMPLE
+    ///////////////////////////////////////////////////////////////////////////////////
 
     const raw = JSON.stringify({
         "user_app_id": {
@@ -50,14 +49,14 @@ const returnClarifaiRequestOptions = (imageUrl) => {
             'Authorization': 'Key ' + PAT
         },
         body: raw
-    }
-
+    };
     return requestOptions;
+    // NOTE: MODEL_VERSION_ID is optional, you can also call prediction with the MODEL_ID only
+    // https://api.clarifai.com/v2/models/{YOUR_MODEL_ID}/outputs
+    // this will default to the latest version_id
 }
+
     
-
-
-
 
 class App extends Component {
     constructor() {
@@ -68,24 +67,19 @@ class App extends Component {
         }
     }
 
-
     onInputChange = (event) => {
-        
-        console.log(event.target.value)
         this.setState({input: event.target.value})
     }
 
     onButtonSubmit = () => {
-        console.log('click')
+        console.log('click');
         this.setState({imageUrl: this.state.input});
-        console.log(this.state.input);
-
-        fetch("https://api.clarifai.com/v2/models/" + 'face-detection' + "/versions/" + '6dc7e46bc9124c5c8824be4822abe105' + "/outputs", returnClarifaiRequestOptions(this.state.input))
+        fetch("https://api.clarifai.com/v2/models/" + 'face-detection' + "/outputs", returnClarifaiRequestOptions(this.state.input))
         .then(response => response.json())
-        .then(data => console.log(data))
-        .catch(error => console.log('error', error));  
+        .then(data => console.log(data.outputs[0].data.regions[0].region_info.bounding_box))
+        .catch(error => console.log('error', error));
     }
-
+    
     render() {
         return (
             <div className="App">
@@ -94,11 +88,12 @@ class App extends Component {
                 <Logo />
                 <Rank />
                 <ImageLinkForm 
-                    onInputChange={this.onInputChange} 
+                    onInputChange={this.onInputChange}
                     onButtonSubmit={this.onButtonSubmit}
+                    
 
                 />
-                {/* <FaceRecognition /> */}
+                <FaceRecognition imageUrl={this.state.imageUrl} />
             </div>
     );
     }
