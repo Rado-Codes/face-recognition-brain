@@ -1,7 +1,8 @@
 
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import ParticlesBg from 'particles-bg';
 import Navigation  from './components/Navigation/Navigation';
+import Signin  from './components/Signin/Signin';
 import Logo  from './components/Logo/Logo';
 import Rank  from './components/Rank/Rank';
 import ImageLinkForm  from './components/ImageLinkForm/ImageLinkForm';
@@ -63,8 +64,30 @@ class App extends Component {
         super();
         this.state = {
             input: '',
-            imageUrl: ''
+            imageUrl: '',
+            box: {},
         }
+    }
+
+
+    calculateFaceLocation = (data) => {
+        const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
+        const image = document.getElementById('inputImage');
+        const width = Number(image.width);
+        const height = Number(image.height);
+        console.log(width, height);
+        //returns an object of data (percentage) for creating box
+        return {
+            leftCol: clarifaiFace.left_col * width,
+            topRow: clarifaiFace.top_row * height,
+            rightCol: width - (clarifaiFace.right_col * width),
+            bottomRow: height - (clarifaiFace.bottom_row * height),
+        }
+    }
+
+    displayFaceBox = (box) => {
+        console.log(box);
+        this.setState({box: box});
     }
 
     onInputChange = (event) => {
@@ -76,7 +99,8 @@ class App extends Component {
         this.setState({imageUrl: this.state.input});
         fetch("https://api.clarifai.com/v2/models/" + 'face-detection' + "/outputs", returnClarifaiRequestOptions(this.state.input))
         .then(response => response.json())
-        .then(data => console.log(data.outputs[0].data.regions[0].region_info.bounding_box))
+        //calculate faceLocation and then displayFaceBox
+        .then(data => this.displayFaceBox(this.calculateFaceLocation(data)))
         .catch(error => console.log('error', error));
     }
     
@@ -85,6 +109,7 @@ class App extends Component {
             <div className="App">
                 <ParticlesBg className='particles' num={250} type="cobweb" color="#F0F8FF" bg={true} />
                 <Navigation />
+                <Signin />
                 <Logo />
                 <Rank />
                 <ImageLinkForm 
@@ -92,7 +117,7 @@ class App extends Component {
                     onButtonSubmit={this.onButtonSubmit}
             
                 />
-                <FaceRecognition imageUrl={this.state.imageUrl} />
+                <FaceRecognition box={this.state.box} imageUrl={this.state.imageUrl} />
             </div>
     );
     }
