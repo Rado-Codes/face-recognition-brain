@@ -13,70 +13,25 @@ import './App.css';
 
 
 
-const returnClarifaiRequestOptions = (imageUrl) => {
-    // Your PAT (Personal Access Token) can be found in the portal under Authentification
-    const PAT = 'e0e1d40ce8114b4ca377e610579b0c35';
-    // Specify the correct user_id/app_id pairings
-    // Since you're making inferences outside your app's scope
-    const USER_ID = 'rado';       
-    const APP_ID = 'smart-brain';
-    // Change these to whatever model and image URL you want to use
-    const MODEL_ID = 'face-detection'; 
-    const IMAGE_URL = imageUrl;
-
-    ///////////////////////////////////////////////////////////////////////////////////
-    // YOU DO NOT NEED TO CHANGE ANYTHING BELOW THIS LINE TO RUN THIS EXAMPLE
-    ///////////////////////////////////////////////////////////////////////////////////
-
-    const raw = JSON.stringify({
-        "user_app_id": {
-            "user_id": USER_ID,
-            "app_id": APP_ID
-        },
-        "inputs": [
-            {
-                "data": {
-                    "image": {
-                        "url": IMAGE_URL
-                    }
-                }
-            }
-        ]
-    });
-
-    const requestOptions = {
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'Authorization': 'Key ' + PAT
-        },
-        body: raw
-    };
-    return requestOptions;
-    // NOTE: MODEL_VERSION_ID is optional, you can also call prediction with the MODEL_ID only
-    // https://api.clarifai.com/v2/models/{YOUR_MODEL_ID}/outputs
-    // this will default to the latest version_id
-}
-
-    
+const initialState = {
+    input: '',
+    imageUrl: '',
+    box: {},
+    route: 'signin',
+    isSignedIn: false,
+    user: {
+        id: '',
+        name: '',
+        email: '',
+        entries: 0,
+        joined: ''
+    }
+} 
 
 class App extends Component {
     constructor() {
         super();
-        this.state = {
-            input: '',
-            imageUrl: '',
-            box: {},
-            route: 'signin',
-            isSignedIn: false,
-            user: {
-                id: '',
-                name: '',
-                email: '',
-                entries: 0,
-                joined: ''
-            }
-        }
+        this.state = initialState;
     }
 
     loadUser = (data) => {
@@ -115,7 +70,17 @@ class App extends Component {
     onButtonSubmit = () => {
         console.log('click');
         this.setState({imageUrl: this.state.input});
-        fetch("https://api.clarifai.com/v2/models/" + 'face-detection' + "/outputs", returnClarifaiRequestOptions(this.state.input))
+        //set fetching clarifai on backend, sending just this.state.input in request body
+        fetch('http://localhost:3000/imageurl', {
+            method: 'post',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                input: this.state.input
+            })
+        })
+        .then(response => response.json()) //receive from backend response that needs to be an object in JS
+        // this is to be send on backend
+        // fetch("https://api.clarifai.com/v2/models/" + 'face-detection' + "/outputs", returnClarifaiRequestOptions(this.state.input))
         .then(response => {
             if(response){
                 fetch('http://localhost:3000/image', {
@@ -130,8 +95,9 @@ class App extends Component {
                 .then(count => {
                     this.setState(Object.assign(this.state.user, {entries: count}))
                 })
+                .catch(console.log);
             }
-            return response.json()})
+            return response})
         //calculate faceLocation and then displayFaceBox
         .then(data => this.displayFaceBox(this.calculateFaceLocation(data)))
         .catch(error => console.log('error', error));
@@ -139,9 +105,9 @@ class App extends Component {
     
     onRouteChange = (route) => {
         if (route === 'signout') {
-            this.setState({isSignedIn: false})
+            this.setState(initialState);
         } else if (route === 'home') {
-            this.setState({isSignedIn: true})
+            this.setState({isSignedIn: true});
         }
         this.setState({route: route});
     }

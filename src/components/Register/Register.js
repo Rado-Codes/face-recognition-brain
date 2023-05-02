@@ -36,7 +36,7 @@ class Register extends Component {
             .then(response => response.json())
             //server responds with user
             .then(user => {
-                if(user){
+                if(user.id){ //does the user exist? Did we receive a user with a property of id?
                     this.props.loadUser(user);
                     this.props.onRouteChange('home');
                 }
