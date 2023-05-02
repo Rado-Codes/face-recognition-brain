@@ -71,7 +71,7 @@ class App extends Component {
         console.log('click');
         this.setState({imageUrl: this.state.input});
         //set fetching clarifai on backend, sending just this.state.input in request body
-        fetch('http://localhost:3000/imageurl', {
+        fetch('https://face-recognition-brain-api-ro1l.onrender.com/imageurl', {
             method: 'post',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -83,7 +83,7 @@ class App extends Component {
         // fetch("https://api.clarifai.com/v2/models/" + 'face-detection' + "/outputs", returnClarifaiRequestOptions(this.state.input))
         .then(response => {
             if(response){
-                fetch('http://localhost:3000/image', {
+                fetch('https://face-recognition-brain-api-ro1l.onrender.com/image', {
                     method: 'put',
                     headers: {'Content-Type': 'application/json'},
                     //sending in request body with data from front end
