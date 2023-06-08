@@ -1,6 +1,6 @@
 # Face Recognition Brain
 
-Live App: face-recognition-app-ielr.onrender.com/
+Live App: https://face-recognition-app-ielr.onrender.com/
 
 ## About the project
 
