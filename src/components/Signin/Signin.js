@@ -1,8 +1,11 @@
 import { useState } from 'react';
+import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
 
 function Signin({ loadUser, onRouteChange }) {
 	const [signInEmail, setSignInEmail] = useState('');
 	const [signInPassword, setSignInPassword] = useState('');
+
+	const [isLoading, setIsLoading] = useState(false);
 
 	function onEmailChange(event) {
 		setSignInEmail(event.target.value);
@@ -12,6 +15,7 @@ function Signin({ loadUser, onRouteChange }) {
 	}
 
 	function onSubmitSignIn() {
+		setIsLoading(true);
 		fetch('https://face-recognition-brain-api-ro1l.onrender.com/signin', {
 			method: 'post',
 			headers: { 'Content-Type': 'application/json' },
@@ -25,6 +29,7 @@ function Signin({ loadUser, onRouteChange }) {
 				if (user.id) {
 					//does the user exist? Did we receive a user with a property of id?
 					loadUser(user);
+					setIsLoading(false);
 					onRouteChange('home');
 				}
 			});
@@ -70,15 +75,34 @@ function Signin({ loadUser, onRouteChange }) {
 							/>
 						</div>
 					</fieldset>
-					<div className=''>
+					<div
+						className='mv2'
+						style={{
+							display: 'flex',
+							flexDirection: 'row',
+							alignItems: 'center',
+						}}
+					>
 						<input
 							onClick={onSubmitSignIn}
 							className='b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib'
 							type='submit'
 							value='Sign in'
+							style={{
+								position: 'absolute',
+								left: '50%',
+								transform: 'translateX(-50%)',
+							}}
 						/>
+						{isLoading ? (
+							<LoadingSpinner />
+						) : (
+							<div className='empty-div'></div>
+						)}
+						{/* <LoadingSpinner /> */}
 					</div>
-					<div className='lh-copy mt3'>
+
+					<div className='lh-copy mt4'>
 						<p
 							onClick={() => onRouteChange('register')}
 							className='f6 link dim black db pointer'

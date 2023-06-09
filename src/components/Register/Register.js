@@ -1,9 +1,12 @@
 import { useState } from 'react';
+import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
 
 function Register({ loadUser, onRouteChange }) {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [name, setName] = useState('');
+
+	const [isLoading, setIsLoading] = useState(false);
 
 	function onEmailChange(event) {
 		setEmail(event.target.value);
@@ -18,6 +21,7 @@ function Register({ loadUser, onRouteChange }) {
 	}
 
 	function onSubmitSignIn() {
+		setIsLoading(true);
 		fetch('https://face-recognition-brain-api-ro1l.onrender.com/register', {
 			method: 'post',
 			headers: { 'Content-Type': 'application/json' },
@@ -34,6 +38,7 @@ function Register({ loadUser, onRouteChange }) {
 				if (user.id) {
 					//does the user exist? Did we receive a user with a property of id?
 					loadUser(user);
+					setIsLoading(false);
 					onRouteChange('home');
 				}
 			});
@@ -72,6 +77,7 @@ function Register({ loadUser, onRouteChange }) {
 								type='email'
 								name='email-address'
 								id='email-address'
+								required
 								onChange={onEmailChange}
 							/>
 						</div>
@@ -87,17 +93,36 @@ function Register({ loadUser, onRouteChange }) {
 								type='password'
 								name='password'
 								id='password'
+								required
 								onChange={onPasswordChange}
 							/>
 						</div>
 					</fieldset>
-					<div className=''>
+					<div
+						className=''
+						style={{
+							display: 'flex',
+							flexDirection: 'row',
+							alignItems: 'center',
+						}}
+					>
 						<input
 							onClick={onSubmitSignIn}
 							className='b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib'
 							type='submit'
 							value='Register'
+							style={{
+								position: 'absolute',
+								left: '50%',
+								transform: 'translateX(-50%)',
+							}}
 						/>
+						{isLoading ? (
+							<LoadingSpinner />
+						) : (
+							<div className='empty-div'></div>
+						)}
+						{/* <LoadingSpinner /> */}
 					</div>
 				</div>
 			</main>

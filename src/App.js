@@ -26,7 +26,7 @@ import './App.css';
 const defaultImage = {
 	input: '',
 	imageUrl: '',
-	box: {},
+	boxes: [],
 };
 
 const defaultUser = {
@@ -44,9 +44,9 @@ function App() {
 	const [userState, setUserState] = useState(defaultUser);
 
 	const [isSubmitted, setIsSubmitted] = useState(false);
+	const [isError, setIsError] = useState('');
 
 	function loadUser(data) {
-		console.log(data);
 		setUserState({
 			id: data.id,
 			name: data.name,
@@ -57,25 +57,37 @@ function App() {
 	}
 
 	function calculateFaceLocation(data) {
-		const clarifaiFace =
-			data.outputs[0].data.regions[0].region_info.bounding_box;
+		if (!data.outputs[0]?.data.regions[0]) {
+			return;
+		}
+		setIsError(''); //clear up comment
+		const clarifaiRegions = data.outputs[0].data.regions;
+		const clarifaiBoundingBox = clarifaiRegions.map((region) => {
+			return region.region_info.bounding_box;
+		});
+		// data.outputs[0].data.regions[0].region_info.bounding_box;
 		const image = document.getElementById('inputImage');
 		const width = Number(image.width);
 		const height = Number(image.height);
 		console.log(width, height);
 		//returns an object of data (percentage) for creating box
-		return {
-			leftCol: clarifaiFace.left_col * width,
-			topRow: clarifaiFace.top_row * height,
-			rightCol: width - clarifaiFace.right_col * width,
-			bottomRow: height - clarifaiFace.bottom_row * height,
-		};
+		const clarifaiFacesPercentage = clarifaiBoundingBox.map(
+			(clarifaiFace) => {
+				return {
+					leftCol: clarifaiFace.left_col * width,
+					topRow: clarifaiFace.top_row * height,
+					rightCol: width - clarifaiFace.right_col * width,
+					bottomRow: height - clarifaiFace.bottom_row * height,
+				};
+			}
+		);
+		return clarifaiFacesPercentage;
 	}
 
-	function displayFaceBox(box) {
+	function displayFaceBox(boxes) {
 		setImageState({
 			...imageState,
-			box: box,
+			boxes: boxes,
 		});
 	}
 
@@ -85,6 +97,16 @@ function App() {
 			input: event.target.value,
 		});
 	}
+
+	function handleError(error) {
+		console.log('error', error);
+		setImageState({
+			...imageState,
+			boxes: [],
+		});
+		setIsError('There is no face in this image');
+	}
+
 	//fetchig Data after Submission of URL
 	useEffect(() => {
 		if (isSubmitted) {
@@ -128,7 +150,7 @@ function App() {
 				})
 				//calculate faceLocation and then displayFaceBox
 				.then((data) => displayFaceBox(calculateFaceLocation(data)))
-				.catch((error) => console.log('error', error));
+				.catch((error) => handleError(error));
 			setIsSubmitted(false);
 		}
 	}, [isSubmitted]);
@@ -170,9 +192,10 @@ function App() {
 					<ImageLinkForm
 						onInputChange={onInputChange}
 						onButtonSubmit={onButtonSubmit}
+						errorDisplay={isError}
 					/>
 					<FaceRecognition
-						box={imageState.box}
+						boxes={imageState.boxes}
 						imageUrl={imageState.imageUrl}
 					/>
 				</div>
