@@ -76,7 +76,7 @@ function Signin({ loadUser, onRouteChange }) {
 						</div>
 					</fieldset>
 					<div
-						className='mv2'
+						className='h2'
 						style={{
 							display: 'flex',
 							flexDirection: 'row',
@@ -94,12 +94,12 @@ function Signin({ loadUser, onRouteChange }) {
 								transform: 'translateX(-50%)',
 							}}
 						/>
-						{isLoading ? (
+						{/* {isLoading ? (
 							<LoadingSpinner />
 						) : (
 							<div className='empty-div'></div>
-						)}
-						{/* <LoadingSpinner /> */}
+						)} */}
+						{isLoading && <LoadingSpinner />}
 					</div>
 
 					<div className='lh-copy mt4'>

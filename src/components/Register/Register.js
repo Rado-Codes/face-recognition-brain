@@ -2,35 +2,29 @@ import { useState } from 'react';
 import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
 
 function Register({ loadUser, onRouteChange }) {
-	const [email, setEmail] = useState('');
-	const [password, setPassword] = useState('');
-	const [name, setName] = useState('');
+	const [formData, setFormData] = useState({
+		email: '',
+		password: '',
+		name: '',
+	});
+
+	function onInputChange(event) {
+		setFormData((prevData) => ({
+			...prevData,
+			[event.target.name]: event.target.value,
+		}));
+	}
 
 	const [isLoading, setIsLoading] = useState(false);
 
-	function onEmailChange(event) {
-		setEmail(event.target.value);
-	}
-
-	function onPasswordChange(event) {
-		setPassword(event.target.value);
-	}
-
-	function onNameChange(event) {
-		setName(event.target.value);
-	}
-
 	function onSubmitSignIn() {
+		console.log(formData);
 		setIsLoading(true);
 		fetch('https://face-recognition-brain-api-ro1l.onrender.com/register', {
 			method: 'post',
 			headers: { 'Content-Type': 'application/json' },
 			//sending in request body with data from front end
-			body: JSON.stringify({
-				email: email,
-				password: password,
-				name: name,
-			}),
+			body: JSON.stringify(formData),
 		})
 			.then((response) => response.json())
 			//server responds with user
@@ -62,7 +56,7 @@ function Register({ loadUser, onRouteChange }) {
 								type='text'
 								name='name'
 								id='name'
-								onChange={onNameChange}
+								onChange={onInputChange}
 							/>
 						</div>
 						<div className='mt3'>
@@ -75,10 +69,10 @@ function Register({ loadUser, onRouteChange }) {
 							<input
 								className='pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100'
 								type='email'
-								name='email-address'
+								name='email'
 								id='email-address'
 								required
-								onChange={onEmailChange}
+								onChange={onInputChange}
 							/>
 						</div>
 						<div className='mv3'>
@@ -94,12 +88,12 @@ function Register({ loadUser, onRouteChange }) {
 								name='password'
 								id='password'
 								required
-								onChange={onPasswordChange}
+								onChange={onInputChange}
 							/>
 						</div>
 					</fieldset>
 					<div
-						className=''
+						className='h2'
 						style={{
 							display: 'flex',
 							flexDirection: 'row',
@@ -117,12 +111,7 @@ function Register({ loadUser, onRouteChange }) {
 								transform: 'translateX(-50%)',
 							}}
 						/>
-						{isLoading ? (
-							<LoadingSpinner />
-						) : (
-							<div className='empty-div'></div>
-						)}
-						{/* <LoadingSpinner /> */}
+						{isLoading && <LoadingSpinner />}
 					</div>
 				</div>
 			</main>

@@ -60,7 +60,9 @@ function App() {
 		if (!data.outputs[0]?.data.regions[0]) {
 			return;
 		}
+
 		setIsError(''); //clear up comment
+
 		const clarifaiRegions = data.outputs[0].data.regions;
 		const clarifaiBoundingBox = clarifaiRegions.map((region) => {
 			return region.region_info.bounding_box;

@@ -12,6 +12,8 @@ function FaceRecognition({ imageUrl, boxes }) {
 					width='500px'
 					height='auto'
 				/>
+
+				{/* Draw boxes based on Clarifai API */}
 				{boxes[0] &&
 					boxes.map((box, i) => {
 						return (
