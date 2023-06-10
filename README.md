@@ -4,7 +4,7 @@ Live App: https://face-recognition-smart-app.netlify.app/
 
 ## About the project
 
-Robofriends is a simple web application. It allows users to search and view a collection of robot profiles. The application demonstrates the fundamentals of building a responsive and interactive web interface using modern web technologies.
+Face Recognition Brain project is a full-stack application that uses the power of Clarifai API to efficiently recognize all faces on the picture of provided URL link. Users can upload images that are processed by Clarifai API to identify faces. Application integrates an authentication system, allowing users to create individual accounts through usernames and passwords. Additionally, the app allows users to track their entries data, providing a seamless and interactive experience for face recognition tasks
 
 ## Features
 
