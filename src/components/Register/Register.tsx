@@ -1,14 +1,27 @@
 import { useState } from 'react';
 import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
 
-function Register({ loadUser, onRouteChange }) {
+interface DataProps {
+	id: number;
+	name: string;
+	email: string;
+	entires: number;
+	joined: Date;
+}
+
+interface RegisterProps {
+	loadUser: (data: DataProps) => void;
+	onRouteChange: (route: string) => void;
+}
+
+function Register({ loadUser, onRouteChange }: RegisterProps) {
 	const [formData, setFormData] = useState({
 		email: '',
 		password: '',
 		name: '',
 	});
 
-	function onInputChange(event) {
+	function onInputChange(event: React.ChangeEvent<HTMLInputElement>) {
 		setFormData((prevData) => ({
 			...prevData,
 			[event.target.name]: event.target.value,

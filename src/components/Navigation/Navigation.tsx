@@ -1,6 +1,9 @@
-import React from 'react';
+interface NavigationProps {
+	onRouteChange: (route: string) => void;
+	isSignedIn: boolean;
+}
 
-function Navigation({ onRouteChange, isSignedIn }) {
+function Navigation({ onRouteChange, isSignedIn }: NavigationProps) {
 	if (isSignedIn) {
 		return (
 			<nav style={{ display: 'flex', justifyContent: 'flex-end' }}>

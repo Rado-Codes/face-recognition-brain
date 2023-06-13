@@ -1,16 +1,29 @@
 import { useState } from 'react';
 import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
 
-function Signin({ loadUser, onRouteChange }) {
+interface DataProps {
+	id: number;
+	name: string;
+	email: string;
+	entires: number;
+	joined: Date;
+}
+
+interface SignInProps {
+	loadUser: (data: DataProps) => void;
+	onRouteChange: (route: string) => void;
+}
+
+function Signin({ loadUser, onRouteChange }: SignInProps) {
 	const [signInEmail, setSignInEmail] = useState('');
 	const [signInPassword, setSignInPassword] = useState('');
 
 	const [isLoading, setIsLoading] = useState(false);
 
-	function onEmailChange(event) {
+	function onEmailChange(event: React.ChangeEvent<HTMLInputElement>) {
 		setSignInEmail(event.target.value);
 	}
-	function onPasswordChange(event) {
+	function onPasswordChange(event: React.ChangeEvent<HTMLInputElement>) {
 		setSignInPassword(event.target.value);
 	}
 
@@ -94,11 +107,6 @@ function Signin({ loadUser, onRouteChange }) {
 								transform: 'translateX(-50%)',
 							}}
 						/>
-						{/* {isLoading ? (
-							<LoadingSpinner />
-						) : (
-							<div className='empty-div'></div>
-						)} */}
 						{isLoading && <LoadingSpinner />}
 					</div>
 

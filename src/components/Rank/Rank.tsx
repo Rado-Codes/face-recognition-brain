@@ -1,6 +1,11 @@
 import React from 'react';
 
-function Rank({ name, entries }) {
+interface RankProps {
+	name: string;
+	entries: number;
+}
+
+function Rank({ name, entries }: RankProps) {
 	return (
 		<div>
 			<div className='white f3'>

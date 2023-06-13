@@ -1,7 +1,18 @@
-import React from 'react';
 import './FaceRecognition.css';
 
-function FaceRecognition({ imageUrl, boxes }) {
+interface Box {
+	topRow: number;
+	bottomRow: number;
+	rightCol: number;
+	leftCol: number;
+}
+
+interface FaceRecognitionProps {
+	imageUrl: string;
+	boxes: Box[];
+}
+
+function FaceRecognition({ imageUrl, boxes }: FaceRecognitionProps) {
 	return (
 		<div className='center ma'>
 			<div className='absolute mt2'>
