@@ -23,6 +23,41 @@ import './App.css';
 // 		joined: '',
 // 	},
 // };
+
+interface Box {
+	topRow: number;
+	bottomRow: number;
+	rightCol: number;
+	leftCol: number;
+}
+
+interface ImageStateProps {
+	input: string;
+	imageUrl: string;
+	boxes: Box[];
+}
+interface UserProps {
+	id: number | string;
+	name: string;
+	email: string;
+	entries: number;
+	joined: Date | string;
+}
+
+interface DataProps {
+	id: number;
+	name: string;
+	email: string;
+	entries: number;
+	joined: Date;
+}
+
+interface ClarifaiFace {
+	top_row: number;
+	bottom_row: number;
+	right_col: number;
+	left_col: number;
+}
 const defaultImage = {
 	input: '',
 	imageUrl: '',
@@ -38,15 +73,15 @@ const defaultUser = {
 };
 
 function App() {
-	const [imageState, setImageState] = useState(defaultImage);
-	const [routeState, setRouteState] = useState('signin');
-	const [isSignedIn, setIsSignedIn] = useState(false);
-	const [userState, setUserState] = useState(defaultUser);
+	const [imageState, setImageState] = useState<ImageStateProps>(defaultImage);
+	const [routeState, setRouteState] = useState<string>('signin');
+	const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
+	const [userState, setUserState] = useState<UserProps>(defaultUser);
 
-	const [isSubmitted, setIsSubmitted] = useState(false);
-	const [isError, setIsError] = useState('');
+	const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+	const [isError, setIsError] = useState<string>('');
 
-	function loadUser(data) {
+	function loadUser(data: DataProps) {
 		setUserState({
 			id: data.id,
 			name: data.name,
@@ -56,7 +91,8 @@ function App() {
 		});
 	}
 
-	function calculateFaceLocation(data) {
+	function calculateFaceLocation(data: any) {
+		console.log(data);
 		if (!data.outputs[0]?.data.regions[0]) {
 			return;
 		}
@@ -64,17 +100,20 @@ function App() {
 		setIsError(''); //clear up comment
 
 		const clarifaiRegions = data.outputs[0].data.regions;
-		const clarifaiBoundingBox = clarifaiRegions.map((region) => {
+		const clarifaiBoundingBox = clarifaiRegions.map((region: any) => {
 			return region.region_info.bounding_box;
 		});
 		// data.outputs[0].data.regions[0].region_info.bounding_box;
-		const image = document.getElementById('inputImage');
-		const width = Number(image.width);
-		const height = Number(image.height);
+		const image: HTMLImageElement = document.getElementById(
+			'inputImage'
+		) as HTMLImageElement;
+		const width: number = Number(image.width);
+		const height: number = Number(image.height);
 		console.log(width, height);
 		//returns an object of data (percentage) for creating box
-		const clarifaiFacesPercentage = clarifaiBoundingBox.map(
-			(clarifaiFace) => {
+		console.log(clarifaiBoundingBox);
+		const clarifaiFacesPercentage: Box[] = clarifaiBoundingBox.map(
+			(clarifaiFace: ClarifaiFace) => {
 				return {
 					leftCol: clarifaiFace.left_col * width,
 					topRow: clarifaiFace.top_row * height,
@@ -86,21 +125,21 @@ function App() {
 		return clarifaiFacesPercentage;
 	}
 
-	function displayFaceBox(boxes) {
+	function displayFaceBox(boxes: Box[]) {
 		setImageState({
 			...imageState,
 			boxes: boxes,
 		});
 	}
 
-	function onInputChange(event) {
+	function onInputChange(event: React.ChangeEvent<HTMLInputElement>) {
 		setImageState({
 			...imageState,
 			input: event.target.value,
 		});
 	}
 
-	function handleError(error) {
+	function handleError(error: Error) {
 		console.log('error', error);
 		setImageState({
 			...imageState,
@@ -151,7 +190,9 @@ function App() {
 					return response;
 				})
 				//calculate faceLocation and then displayFaceBox
-				.then((data) => displayFaceBox(calculateFaceLocation(data)))
+				.then((data: Box[]) =>
+					displayFaceBox(calculateFaceLocation(data))
+				)
 				.catch((error) => handleError(error));
 			setIsSubmitted(false);
 		}
@@ -166,7 +207,7 @@ function App() {
 		setIsSubmitted(true);
 	}
 
-	function onRouteChange(route) {
+	function onRouteChange(route: string) {
 		if (route === 'signout') {
 			setImageState(defaultImage);
 			setUserState(defaultUser);
@@ -179,7 +220,7 @@ function App() {
 	return (
 		<div className='App'>
 			<ParticlesBg
-				className='particles'
+				// className='particles'
 				num={250}
 				type='cobweb'
 				color='#F0F8FF'

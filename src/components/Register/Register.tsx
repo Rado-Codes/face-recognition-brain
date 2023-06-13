@@ -5,7 +5,7 @@ interface DataProps {
 	id: number;
 	name: string;
 	email: string;
-	entires: number;
+	entries: number;
 	joined: Date;
 }
 
