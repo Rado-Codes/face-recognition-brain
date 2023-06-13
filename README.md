@@ -17,7 +17,7 @@ Face Recognition Brain project is a full-stack application that uses the power o
 -   Front-end: HTML, CSS, JavaScript
 -   Back-end: Node.js, Express.js
 -   Database: PostgreSQL
--   AI/ML: TensorFlow.js, OpenCV
+-   AI/ML: TensorFlow.js, Clarifai
 
 ## Acknowledgements
 
