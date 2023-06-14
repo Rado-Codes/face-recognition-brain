@@ -44,7 +44,7 @@ interface UserProps {
 	joined: Date | string;
 }
 
-interface DataProps {
+interface LoadUser {
 	id: number;
 	name: string;
 	email: string;
@@ -64,6 +64,8 @@ const defaultImage = {
 	boxes: [],
 };
 
+interface DataResponse {}
+
 const defaultUser = {
 	id: '',
 	name: '',
@@ -81,7 +83,7 @@ function App() {
 	const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
 	const [isError, setIsError] = useState<string>('');
 
-	function loadUser(data: DataProps) {
+	function loadUser(data: LoadUser) {
 		setUserState({
 			id: data.id,
 			name: data.name,
@@ -91,10 +93,10 @@ function App() {
 		});
 	}
 
-	function calculateFaceLocation(data: any) {
+	function calculateFaceLocation(data: any): Box[] {
 		console.log(data);
 		if (!data.outputs[0]?.data.regions[0]) {
-			return;
+			return [];
 		}
 
 		setIsError(''); //clear up comment
@@ -139,7 +141,7 @@ function App() {
 		});
 	}
 
-	function handleError(error: Error) {
+	function handleError(error: any) {
 		console.log('error', error);
 		setImageState({
 			...imageState,
@@ -149,6 +151,7 @@ function App() {
 	}
 
 	//fetchig Data after Submission of URL
+	/*
 	useEffect(() => {
 		if (isSubmitted) {
 			//set fetching clarifai on backend, sending just this.state.input in request body
@@ -190,12 +193,64 @@ function App() {
 					return response;
 				})
 				//calculate faceLocation and then displayFaceBox
-				.then((data: Box[]) =>
+				.then((data: any) =>
 					displayFaceBox(calculateFaceLocation(data))
 				)
 				.catch((error) => handleError(error));
 			setIsSubmitted(false);
 		}
+	}, [isSubmitted]);
+	*/
+
+	useEffect(() => {
+		//set fetching clarifai on backend, sending just this.state.input in request body
+		async function fetchImageUrl() {
+			if (isSubmitted) {
+				try {
+					const resp = await fetch(
+						'https://face-recognition-brain-api-ro1l.onrender.com/imageurl',
+						{
+							method: 'post',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({
+								input: imageState.input,
+							}),
+						}
+					);
+					const data = await resp.json(); //receive from backend response that needs to be an object in JS
+
+					if (data) {
+						try {
+							const countResponse = await fetch(
+								'https://face-recognition-brain-api-ro1l.onrender.com/image',
+								{
+									method: 'put',
+									headers: {
+										'Content-Type': 'application/json',
+									},
+									//sending in request body with data from front end
+									body: JSON.stringify({
+										id: userState.id,
+									}),
+								}
+							);
+							const count = await countResponse.json();
+							setUserState({
+								...userState,
+								entries: count,
+							});
+						} catch (error) {
+							console.log(error);
+						}
+					}
+					displayFaceBox(calculateFaceLocation(data));
+				} catch (error) {
+					handleError(error);
+				}
+				setIsSubmitted(false);
+			}
+		}
+		fetchImageUrl();
 	}, [isSubmitted]);
 
 	function onButtonSubmit() {
