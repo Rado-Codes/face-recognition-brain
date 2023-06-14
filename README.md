@@ -14,11 +14,11 @@ Face Recognition Brain project is a full-stack application that uses the power o
 
 ## Technologies Used
 
--   Front-end: HTML, CSS, JavaScript
+-   Front-end: HTML, CSS, JavaScript, TypeScript
 -   Back-end: Node.js, Express.js
 -   Database: PostgreSQL
 -   AI/ML: TensorFlow.js, Clarifai
 
 ## Acknowledgements
 
-The Face Recogniton Brain was developed as part of the "Zero to Mastery" web development course. I rebuilt App from Classes to React Hooks, changed fetchin API to the backend and tested gPRC.
+The Face Recogniton Brain was developed as part of the "Zero to Mastery" web development course. I rebuilt App from Classes to React Hooks, added TypeScript, changed fetching API to the backend and tested gPRC.

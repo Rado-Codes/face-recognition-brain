@@ -31,12 +31,12 @@ interface Box {
 	leftCol: number;
 }
 
-interface ImageStateProps {
+interface ImageStateData {
 	input: string;
 	imageUrl: string;
 	boxes: Box[];
 }
-interface UserProps {
+interface User {
 	id: number | string;
 	name: string;
 	email: string;
@@ -64,7 +64,25 @@ const defaultImage = {
 	boxes: [],
 };
 
-interface DataResponse {}
+interface DataResponse {
+	status: {
+		code: number;
+		description: string;
+		req_id: string;
+	};
+	outputs: any[];
+}
+
+interface Region_Info {
+	bounding_box: ClarifaiFace;
+}
+
+interface Region {
+	id: string;
+	region_info: Region_Info;
+	data: unknown;
+	value: number;
+}
 
 const defaultUser = {
 	id: '',
@@ -75,13 +93,13 @@ const defaultUser = {
 };
 
 function App() {
-	const [imageState, setImageState] = useState<ImageStateProps>(defaultImage);
-	const [routeState, setRouteState] = useState<string>('signin');
-	const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
-	const [userState, setUserState] = useState<UserProps>(defaultUser);
+	const [imageState, setImageState] = useState<ImageStateData>(defaultImage);
+	const [routeState, setRouteState] = useState('signin');
+	const [isSignedIn, setIsSignedIn] = useState(false);
+	const [userState, setUserState] = useState<User>(defaultUser);
 
-	const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-	const [isError, setIsError] = useState<string>('');
+	const [isSubmitted, setIsSubmitted] = useState(false);
+	const [isError, setIsError] = useState('');
 
 	function loadUser(data: LoadUser) {
 		setUserState({
@@ -93,7 +111,7 @@ function App() {
 		});
 	}
 
-	function calculateFaceLocation(data: any): Box[] {
+	function calculateFaceLocation(data: DataResponse): Box[] {
 		console.log(data);
 		if (!data.outputs[0]?.data.regions[0]) {
 			return [];
@@ -102,7 +120,8 @@ function App() {
 		setIsError(''); //clear up comment
 
 		const clarifaiRegions = data.outputs[0].data.regions;
-		const clarifaiBoundingBox = clarifaiRegions.map((region: any) => {
+		const clarifaiBoundingBox = clarifaiRegions.map((region: Region) => {
+			console.log('REGION', region);
 			return region.region_info.bounding_box;
 		});
 		// data.outputs[0].data.regions[0].region_info.bounding_box;
@@ -142,7 +161,6 @@ function App() {
 	}
 
 	function handleError(error: any) {
-		console.log('error', error);
 		setImageState({
 			...imageState,
 			boxes: [],
@@ -204,7 +222,7 @@ function App() {
 
 	useEffect(() => {
 		//set fetching clarifai on backend, sending just this.state.input in request body
-		async function fetchImageUrl() {
+		async function fetchImageUrl(): Promise<void> {
 			if (isSubmitted) {
 				try {
 					const resp = await fetch(
@@ -217,8 +235,8 @@ function App() {
 							}),
 						}
 					);
-					const data = await resp.json(); //receive from backend response that needs to be an object in JS
-
+					const data: DataResponse = await resp.json(); //receive from backend response that needs to be an object in JS
+					//add entry to the database
 					if (data) {
 						try {
 							const countResponse = await fetch(
