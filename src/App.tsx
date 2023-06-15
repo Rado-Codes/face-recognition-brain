@@ -8,6 +8,15 @@ import Rank from './components/Rank/Rank';
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 import './App.css';
+import {
+	BoundingBox,
+	BoundingBoxClarifai,
+	ImageStateData,
+	User,
+	LoadUser,
+	DataResponse,
+	Region,
+} from './types/types.js';
 
 // const initialState = {
 // 	input: '',
@@ -24,65 +33,11 @@ import './App.css';
 // 	},
 // };
 
-interface Box {
-	topRow: number;
-	bottomRow: number;
-	rightCol: number;
-	leftCol: number;
-}
-
-interface ImageStateData {
-	input: string;
-	imageUrl: string;
-	boxes: Box[];
-}
-interface User {
-	id: number | string;
-	name: string;
-	email: string;
-	entries: number;
-	joined: Date | string;
-}
-
-interface LoadUser {
-	id: number;
-	name: string;
-	email: string;
-	entries: number;
-	joined: Date;
-}
-
-interface ClarifaiFace {
-	top_row: number;
-	bottom_row: number;
-	right_col: number;
-	left_col: number;
-}
 const defaultImage = {
 	input: '',
 	imageUrl: '',
 	boxes: [],
 };
-
-interface DataResponse {
-	status: {
-		code: number;
-		description: string;
-		req_id: string;
-	};
-	outputs: any[];
-}
-
-interface Region_Info {
-	bounding_box: ClarifaiFace;
-}
-
-interface Region {
-	id: string;
-	region_info: Region_Info;
-	data: unknown;
-	value: number;
-}
 
 const defaultUser = {
 	id: '',
@@ -111,7 +66,7 @@ function App() {
 		});
 	}
 
-	function calculateFaceLocation(data: DataResponse): Box[] {
+	function calculateFaceLocation(data: DataResponse): BoundingBox[] {
 		console.log(data);
 		if (!data.outputs[0]?.data.regions[0]) {
 			return [];
@@ -133,8 +88,8 @@ function App() {
 		console.log(width, height);
 		//returns an object of data (percentage) for creating box
 		console.log(clarifaiBoundingBox);
-		const clarifaiFacesPercentage: Box[] = clarifaiBoundingBox.map(
-			(clarifaiFace: ClarifaiFace) => {
+		const clarifaiFacesPercentage: BoundingBox[] = clarifaiBoundingBox.map(
+			(clarifaiFace: BoundingBoxClarifai) => {
 				return {
 					leftCol: clarifaiFace.left_col * width,
 					topRow: clarifaiFace.top_row * height,
@@ -146,7 +101,7 @@ function App() {
 		return clarifaiFacesPercentage;
 	}
 
-	function displayFaceBox(boxes: Box[]) {
+	function displayFaceBox(boxes: BoundingBox[]) {
 		setImageState({
 			...imageState,
 			boxes: boxes,
@@ -222,10 +177,10 @@ function App() {
 
 	useEffect(() => {
 		//set fetching clarifai on backend, sending just this.state.input in request body
-		async function fetchImageUrl(): Promise<void> {
+		async function fetchImageUrl() {
 			if (isSubmitted) {
 				try {
-					const resp = await fetch(
+					const resp: Response = await fetch(
 						'https://face-recognition-brain-api-ro1l.onrender.com/imageurl',
 						{
 							method: 'post',
@@ -239,7 +194,7 @@ function App() {
 					//add entry to the database
 					if (data) {
 						try {
-							const countResponse = await fetch(
+							const countResponse: Response = await fetch(
 								'https://face-recognition-brain-api-ro1l.onrender.com/image',
 								{
 									method: 'put',
@@ -262,6 +217,7 @@ function App() {
 						}
 					}
 					displayFaceBox(calculateFaceLocation(data));
+					console.log('DATA', data);
 				} catch (error) {
 					handleError(error);
 				}
